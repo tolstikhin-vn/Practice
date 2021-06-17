@@ -121,17 +121,15 @@ public class CreatePdf {
         return color;
     }
 
-    public void addingAnAnnotation(Scanner in, PdfPage page, Color color, PdfAnnotation annotation) {
+    public void addingAnAnnotation(Scanner in, PdfPage page, PdfAnnotation annotation) {
         String title;
         String textOfAnnotation;
-        annotation.setColor(color);
         System.out.print("Введите заголовок аннотации.\nВвод: ");
         title = in.nextLine();
         annotation.setTitle(new PdfString(title));
         System.out.print("Введите текст аннотации.\nВвод: ");
         textOfAnnotation = in.nextLine();
-        annotation.setTitle(new PdfString(title));
-        annotation.setContents(new PdfString(textOfAnnotation));
+        annotation.setContents(textOfAnnotation);
         page.addAnnotation(annotation);
     }
 
@@ -142,7 +140,7 @@ public class CreatePdf {
         final int height = 0;
         Rectangle rect = new Rectangle(width, height);
         PdfLinkAnnotation annotation = new PdfLinkAnnotation(rect);
-        System.out.println("Введите ссылку:");
+        System.out.print("Введите ссылку: ");
         String linkSite = in.nextLine();
         // Настройка действия аннотации
         PdfAction action = PdfAction.createURI(linkSite);
@@ -157,29 +155,23 @@ public class CreatePdf {
         paragraph.add(link.setUnderline());
         // Добавление абзаца в документ
         document.add(paragraph);
+        System.out.println("Аннотация добавлена.");
     }
 
-    public void annotationType2(Scanner in, PdfPage page, Color color) {
+    public void annotationType2(Scanner in, PdfPage page) {
         final int xCoord = 20;
         final int yCoord = 800;
         final int width = 0;
         final int height = 0;
+        // Создание объекта PdfTextAnnotation
         Rectangle rect = new Rectangle(xCoord, yCoord, width, height);
-        PdfAnnotation annotation = new PdfCircleAnnotation(rect);
-        addingAnAnnotation(in, page, color, annotation);
+        PdfAnnotation annotation = new PdfTextAnnotation(rect);
+        addingAnAnnotation(in, page, annotation);
+        // Устанавливаем текст
+        page.addAnnotation(annotation);
     }
 
     public void annotationType3(Scanner in, PdfPage page, Color color) {
-        final int width = 0;
-        final int height = 0;
-        Rectangle rect = new Rectangle(width, height);
-        //String title, textOfAnnotation;
-        float[] floatArray = new float[]{20, 790, page.getPageSize().getWidth() - 20, 790};
-        PdfAnnotation annotation = PdfTextMarkupAnnotation.createHighLight(rect, floatArray);
-        addingAnAnnotation(in, page, color, annotation);
-    }
-
-    public void annotationType4(Scanner in, PdfPage page, Color color) {
         final int xCoord = 105;
         final int yCoord = 790;
         final int width = 64;
@@ -187,17 +179,25 @@ public class CreatePdf {
         Rectangle rect = new Rectangle(xCoord, yCoord, width, height);
         float[] floatArray = new float[]{169, 790, 105, 790, 169, 800, 105, 800};
         PdfAnnotation annotation = PdfTextMarkupAnnotation.createHighLight(rect, floatArray);
-        addingAnAnnotation(in, page, color, annotation);
+        annotation.setColor(color);
+        String textOfAnnotation;
+        System.out.print("Введите текст аннотации.\nВвод: ");
+        textOfAnnotation = in.nextLine();
+        annotation.setContents(textOfAnnotation);
+        page.addAnnotation(annotation);
+        System.out.println("Аннотация добавлена.");
     }
 
-    public void annotationType5(Scanner in, PdfPage page, Color color) {
+    public void annotationType4(Scanner in, PdfPage page, Color color) {
         final int xCoord = 105;
         final int yCoord = 770;
         final int width = 50;
         final int height = 50;
         Rectangle rect = new Rectangle(xCoord, yCoord, width, height);
         PdfAnnotation annotation = new PdfCircleAnnotation(rect);
-        addingAnAnnotation(in, page, color, annotation);
+        annotation.setColor(color);
+        addingAnAnnotation(in, page, annotation);
+        System.out.println("Аннотация добавлена.");
     }
 
     public static void main(String[] args) throws Exception {
@@ -459,7 +459,8 @@ public class CreatePdf {
                     if (!listItem.equalsIgnoreCase("end")) {
                         // Добавляем элемент в список
                         list.add(listItem);
-                        System.out.println("Список добавлен!");
+                    } else {
+                        System.out.println("Список добавлен.");
                     }
                 } while (!listItem.equalsIgnoreCase("end"));
                 // Добавляем список в документ
@@ -522,30 +523,20 @@ public class CreatePdf {
                         Что бы Вы хотели добавить? Введите соответствующую команду.
                         1 - ссылочная аннотация
                         2 - текстовая аннотация
-                        3 - аннотация строки
-                        4 - аннотация разметки
-                        5 - круговая аннотация""");
+                        3 - аннотация разметки
+                        4 - круговая аннотация""");
+                System.out.print("Ввод: ");
                 annotationType = in.nextLine();
                 boolean annotationSelected = false;
                 do {
                     Color color;
-                    System.out.print("Ввод: ");
                     switch (annotationType) {
                         case "1" -> {
                             CreatePdf.annotationType1(in, document);
                             annotationSelected = true;
                         }
                         case "2" -> {
-                            CreatePdf.listOfColors();
-                            System.out.println();
-                            System.out.println("Введите номер цвета аннотации.");
-                            do {
-                                System.out.print("Ввод: ");
-                                String colorOfAnnotation = in.nextLine();
-                                color = CreatePdf.setColorOfAnnotation(colorOfAnnotation);
-                            } while (color == null);
-                            assert page != null;
-                            CreatePdf.annotationType2(in, page, color);
+                            CreatePdf.annotationType2(in, page);
                             annotationSelected = true;
                         }
                         case "3" -> {
@@ -572,19 +563,6 @@ public class CreatePdf {
                             } while (color == null);
                             assert page != null;
                             CreatePdf.annotationType4(in, page, color);
-                            annotationSelected = true;
-                        }
-                        case "5" -> {
-                            CreatePdf.listOfColors();
-                            System.out.println();
-                            System.out.println("Введите номер цвета аннотации.");
-                            do {
-                                System.out.print("Ввод: ");
-                                String colorOfAnnotation = in.nextLine();
-                                color = CreatePdf.setColorOfAnnotation(colorOfAnnotation);
-                            } while (color == null);
-                            assert page != null;
-                            CreatePdf.annotationType5(in, page, color);
                             annotationSelected = true;
                         }
                         default -> System.out.println("Ошибка! Команда введена неверно.");
